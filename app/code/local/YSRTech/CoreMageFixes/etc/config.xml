@@ -2,7 +2,7 @@
 <config>
     <modules>
         <YSRTech_CoreMageFixes>
-            <version>0.1.0</version>
+            <version>0.2.0</version>
         </YSRTech_CoreMageFixes>
     </modules>
     <global>
@@ -12,6 +12,11 @@
                     <product_type_configurable_attribute>YSRTech_CoreMageFixes_Model_Catalog_Product_Type_Configurable_Attribute</product_type_configurable_attribute>
                 </rewrite>
             </catalog>
+            <catalogrule>
+                <rewrite>
+                    <rule>YSRTech_CoreMageFixes_Model_CatalogRule_Rule</rule>
+                </rewrite>
+            </catalogrule>
         </models>
     </global>
 </config>

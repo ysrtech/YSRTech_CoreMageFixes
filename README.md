@@ -55,3 +55,23 @@ label at all - it always returns the attribute's own `getStoreLabel()`. The
 per-product custom-label feature is intentionally dropped in favor of a
 single source of truth: whatever the attribute's label is set to, per store
 view, in Admin.
+
+### `Mage_CatalogRule_Model_Rule::applyAll()`
+
+**Bug:** Apply Rules, and the nightly `catalogrule_apply_all` cron job that calls
+the same method, runs out of memory on larger catalogs. Matching a rule leaves an
+entry for every product in the catalog (matched or not) on the rule object, plus
+the condition tree's cache of every product's value for each attribute the
+conditions test. Core walks the rule collection and never lets go of either, so
+memory grows by a catalog's worth for every active rule: about 9MB per rule on
+19,000 products, 138MB for 15 rules. The cron job runs under the CLI's
+`memory_limit` (128M by default, since the CLI does not read a site's
+`.user.ini`), dies part way through, and is left as `running` in `cron_schedule`.
+Rule prices for products added to a category from the category page (which,
+unlike a product save, does not apply rules) then never arrive.
+
+**Fix:** `applyAll()` does what core's does, but frees each rule's matching data
+right after the rule is written. Peak memory stays at about one rule's worth
+however many rules are active, and the rule tables come out identical. The class
+rewritten is the `catalogrule/rule` model, not the resource model, because
+modules such as YSRTech_SimpleConfigurable rewrite `catalogrule_resource/rule`.
