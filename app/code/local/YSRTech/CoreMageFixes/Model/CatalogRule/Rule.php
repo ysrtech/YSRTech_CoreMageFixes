@@ -15,8 +15,14 @@
  *
  * Only applyAll() is overridden. It does what core's does, with the release added
  * after each rule. Nothing reads that data after the rule is written: the rule
- * prices are then rebuilt from the catalogrule_product table, and getConditions()
- * rebuilds from conditions_serialized if anything asks again.
+ * prices are then rebuilt from the catalogrule_product table, and the rule objects
+ * belong to a collection only this method sees. Even so, a released rule is left
+ * whole: its conditions and actions go back to their serialized form, so
+ * getConditions(), getMatchingProductIds() or save() on it behave as on a freshly
+ * loaded rule.
+ *
+ * The method body mirrors OpenMage 20.x core; if core's applyAll() changes, carry
+ * the change over here.
  */
 class YSRTech_CoreMageFixes_Model_CatalogRule_Rule extends Mage_CatalogRule_Model_Rule
 {
@@ -49,6 +55,16 @@ class YSRTech_CoreMageFixes_Model_CatalogRule_Rule extends Mage_CatalogRule_Mode
     protected function _releaseMatchingData(Mage_CatalogRule_Model_Rule $rule)
     {
         $rule->_productIds = null;
+        // getConditions()/getActions() unset the *_serialized data once they have
+        // built the tree, so put it back before dropping the tree. Otherwise the
+        // rule would come back with no conditions (matching every product), and
+        // saving it would wipe them.
+        if ($rule->_conditions && !$rule->hasConditionsSerialized()) {
+            $rule->setConditionsSerialized(serialize($rule->_conditions->asArray()));
+        }
+        if ($rule->_actions && !$rule->hasActionsSerialized()) {
+            $rule->setActionsSerialized(serialize($rule->_actions->asArray()));
+        }
         $rule->_conditions = null;
         $rule->_actions    = null;
         $rule->unsetData('collected_attributes');
