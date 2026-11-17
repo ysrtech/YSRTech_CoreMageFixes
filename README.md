@@ -77,6 +77,22 @@ however many rules are active, and the rule tables come out identical. The class
 rewritten is the `catalogrule/rule` model, not the resource model, because
 modules such as YSRTech_SimpleConfigurable rewrite `catalogrule_resource/rule`.
 
+### `Mage_Sales_Model_Order_Creditmemo_Total_Discount::collect()`
+
+**Bug:** The credit memo screen returns a 500 for some orders on PHP 8.
+`collect()` divides in two places without checking the divisor: the shipping
+discount is spread over the *order's* base shipping amount while the guard tests
+the *credit memo's*, and on a partial refund each item's discount is spread over
+the quantity still refundable, which is zero once the item has been fully
+refunded. Before PHP 8 that gave INF/NAN and a warning; on PHP 8 it throws
+`DivisionByZeroError` and the credit memo cannot be opened. Still present in
+OpenMage 20.18.0.
+
+**Fix:** both divisions are guarded, as core's own shipping collector does: no
+shipping on the order means no shipping discount to apportion, and nothing left
+to refund on an item means no discount to spread across it. The rest is core's
+method unchanged.
+
 ## Admin improvements
 
 General improvements, not bug fixes. Like the fixes, they copy no core file or

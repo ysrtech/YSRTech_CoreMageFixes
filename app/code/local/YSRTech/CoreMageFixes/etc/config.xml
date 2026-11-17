@@ -2,7 +2,7 @@
 <config>
     <modules>
         <YSRTech_CoreMageFixes>
-            <version>0.3.0</version>
+            <version>0.4.0</version>
         </YSRTech_CoreMageFixes>
     </modules>
     <global>
@@ -20,6 +20,11 @@
                     <rule>YSRTech_CoreMageFixes_Model_CatalogRule_Rule</rule>
                 </rewrite>
             </catalogrule>
+            <sales>
+                <rewrite>
+                    <order_creditmemo_total_discount>YSRTech_CoreMageFixes_Model_Sales_Order_Creditmemo_Total_Discount</order_creditmemo_total_discount>
+                </rewrite>
+            </sales>
         </models>
     </global>
     <adminhtml>
