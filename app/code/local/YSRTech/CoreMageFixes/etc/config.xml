@@ -2,11 +2,14 @@
 <config>
     <modules>
         <YSRTech_CoreMageFixes>
-            <version>0.2.0</version>
+            <version>0.3.0</version>
         </YSRTech_CoreMageFixes>
     </modules>
     <global>
         <models>
+            <ysrtech_coremagefixes>
+                <class>YSRTech_CoreMageFixes_Model</class>
+            </ysrtech_coremagefixes>
             <catalog>
                 <rewrite>
                     <product_type_configurable_attribute>YSRTech_CoreMageFixes_Model_Catalog_Product_Type_Configurable_Attribute</product_type_configurable_attribute>
@@ -19,4 +22,21 @@
             </catalogrule>
         </models>
     </global>
+    <adminhtml>
+        <events>
+            <!--
+             | Admin order, invoice, shipment and credit memo pages: a thumbnail
+             | beside each item, its name linked to the product edit page, and a
+             | "View in store" link. See Model/Observer.php.
+            -->
+            <core_block_abstract_to_html_after>
+                <observers>
+                    <ysrtech_coremagefixes_sales_item_image>
+                        <class>ysrtech_coremagefixes/observer</class>
+                        <method>addSalesItemImageAndLink</method>
+                    </ysrtech_coremagefixes_sales_item_image>
+                </observers>
+            </core_block_abstract_to_html_after>
+        </events>
+    </adminhtml>
 </config>

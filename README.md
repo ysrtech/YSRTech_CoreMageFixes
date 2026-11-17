@@ -1,7 +1,8 @@
 # YSRTech_CoreMageFixes
 
 A Magento 1 / OpenMage module for bug fixes to core (`Mage_*`) classes that
-don't belong to any single site. Installed alongside a site's own codebase,
+don't belong to any single site, and small admin improvements any store would
+want (see [Admin improvements](#admin-improvements)). Installed alongside a site's own codebase,
 not tied to one theme or installation.
 
 ## Why this exists
@@ -75,3 +76,29 @@ right after the rule is written. Peak memory stays at about one rule's worth
 however many rules are active, and the rule tables come out identical. The class
 rewritten is the `catalogrule/rule` model, not the resource model, because
 modules such as YSRTech_SimpleConfigurable rewrite `catalogrule_resource/rule`.
+
+## Admin improvements
+
+General improvements, not bug fixes. Like the fixes, they copy no core file or
+template: each is an observer that adds to what core renders.
+
+### Product thumbnail and links on admin sales items
+
+On the admin order, invoice, shipment and credit memo pages (including the
+create-invoice / shipment / credit memo forms) each item gets:
+
+- a thumbnail of the product, from its thumbnail, else small image, else base image;
+  for a configurable item, the ordered variant's image when it has one;
+- its name linked to the product's edit page (new tab), for admin users allowed
+  Catalog > Products;
+- a small "View in store" link to the product page in the store the order was
+  placed in, when the product is enabled, visible and in that store's website.
+
+A product deleted since the order keeps its name, with an empty image box and no
+link.
+
+**How:** `YSRTech_CoreMageFixes_Model_Observer::addSalesItemImageAndLink()` on
+`core_block_abstract_to_html_after` (adminhtml area), for blocks that are
+`Mage_Adminhtml_Block_Sales_Items_Column_Name`: the core name column and every
+renderer that extends it (grouped products, gift card modules). Bundle items
+use their own core template and are left unchanged.
